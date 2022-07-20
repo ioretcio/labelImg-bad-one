@@ -90,7 +90,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # Save as Pascal voc xml
         self.default_save_dir = default_save_dir
-        self.label_file_format = settings.get(SETTING_LABEL_FILE_FORMAT, LabelFileFormat.PASCAL_VOC)
+        self.label_file_format = settings.get(SETTING_LABEL_FILE_FORMAT, LabelFileFormat.YOLO)
 
         # For loading all image under a directory
         self.m_img_list = []
@@ -246,12 +246,10 @@ class MainWindow(QMainWindow, WindowMixin):
             """
             returns a tuple containing (title, icon_name) of the selected format
             """
-            if format == LabelFileFormat.PASCAL_VOC:
-                return '&PascalVOC', 'format_voc'
-            elif format == LabelFileFormat.YOLO:
+
+            if format == LabelFileFormat.YOLO:
                 return '&YOLO', 'format_yolo'
-            elif format == LabelFileFormat.CREATE_ML:
-                return '&CreateML', 'format_createml'
+
 
         save_format = action(get_format_meta(self.label_file_format)[0],
                              self.change_format, 'Ctrl+Y',
@@ -569,15 +567,7 @@ class MainWindow(QMainWindow, WindowMixin):
             LabelFile.suffix = JSON_EXT
 
     def change_format(self):
-        if self.label_file_format == LabelFileFormat.PASCAL_VOC:
-            self.set_format(FORMAT_YOLO)
-        elif self.label_file_format == LabelFileFormat.YOLO:
-            self.set_format(FORMAT_CREATEML)
-        elif self.label_file_format == LabelFileFormat.CREATE_ML:
-            self.set_format(FORMAT_PASCALVOC)
-        else:
-            raise ValueError('Unknown label file format.')
-        self.set_dirty()
+        pass
 
     def no_shapes(self):
         return not self.items_to_shapes

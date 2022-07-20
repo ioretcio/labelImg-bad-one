@@ -16,9 +16,7 @@ from libs.yolo_io import YOLOWriter
 
 
 class LabelFileFormat(Enum):
-    PASCAL_VOC = 1
-    YOLO = 2
-    CREATE_ML = 3
+    YOLO = 1
 
 
 class LabelFileError(Exception):
@@ -36,50 +34,6 @@ class LabelFile(object):
         self.image_data = None
         self.verified = False
 
-    def save_create_ml_format(self, filename, shapes, image_path, image_data, class_list, line_color=None, fill_color=None, database_src=None):
-        img_folder_name = os.path.basename(os.path.dirname(image_path))
-        img_file_name = os.path.basename(image_path)
-
-        image = QImage()
-        image.load(image_path)
-        image_shape = [image.height(), image.width(),
-                       1 if image.isGrayscale() else 3]
-        writer = CreateMLWriter(img_folder_name, img_file_name,
-                                image_shape, shapes, filename, local_img_path=image_path)
-        writer.verified = self.verified
-        writer.write()
-        return
-
-
-    def save_pascal_voc_format(self, filename, shapes, image_path, image_data,
-                               line_color=None, fill_color=None, database_src=None):
-        img_folder_path = os.path.dirname(image_path)
-        img_folder_name = os.path.split(img_folder_path)[-1]
-        img_file_name = os.path.basename(image_path)
-        # imgFileNameWithoutExt = os.path.splitext(img_file_name)[0]
-        # Read from file path because self.imageData might be empty if saving to
-        # Pascal format
-        if isinstance(image_data, QImage):
-            image = image_data
-        else:
-            image = QImage()
-            image.load(image_path)
-        image_shape = [image.height(), image.width(),
-                       1 if image.isGrayscale() else 3]
-        writer = PascalVocWriter(img_folder_name, img_file_name,
-                                 image_shape, local_img_path=image_path)
-        writer.verified = self.verified
-
-        for shape in shapes:
-            points = shape['points']
-            label = shape['label']
-            # Add Chris
-            difficult = int(shape['difficult'])
-            bnd_box = LabelFile.convert_points_to_bnd_box(points)
-            writer.add_bnd_box(bnd_box[0], bnd_box[1], bnd_box[2], bnd_box[3], label, difficult)
-
-        writer.save(target_file=filename)
-        return
 
     def save_yolo_format(self, filename, shapes, image_path, image_data, class_list,
                          line_color=None, fill_color=None, database_src=None):
@@ -113,35 +67,6 @@ class LabelFile(object):
 
     def toggle_verify(self):
         self.verified = not self.verified
-
-    ''' ttf is disable
-    def load(self, filename):
-        import json
-        with open(filename, 'rb') as f:
-                data = json.load(f)
-                imagePath = data['imagePath']
-                imageData = b64decode(data['imageData'])
-                lineColor = data['lineColor']
-                fillColor = data['fillColor']
-                shapes = ((s['label'], s['points'], s['line_color'], s['fill_color'])\
-                        for s in data['shapes'])
-                # Only replace data after everything is loaded.
-                self.shapes = shapes
-                self.imagePath = imagePath
-                self.imageData = imageData
-                self.lineColor = lineColor
-                self.fillColor = fillColor
-
-    def save(self, filename, shapes, imagePath, imageData, lineColor=None, fillColor=None):
-        import json
-        with open(filename, 'wb') as f:
-                json.dump(dict(
-                    shapes=shapes,
-                    lineColor=lineColor, fillColor=fillColor,
-                    imagePath=imagePath,
-                    imageData=b64encode(imageData)),
-                    f, ensure_ascii=True, indent=2)
-    '''
 
     @staticmethod
     def is_label_file(filename):
