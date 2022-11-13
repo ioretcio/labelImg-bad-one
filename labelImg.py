@@ -1332,6 +1332,7 @@ class MainWindow(QMainWindow, WindowMixin):
         else:
             target_dir_path = ustr(default_open_dir_path)
         self.last_open_dir = target_dir_path
+        print(target_dir_path)
         self.import_dir_images(target_dir_path)
         self.default_save_dir = target_dir_path
         if self.file_path:
@@ -1343,7 +1344,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         self.last_open_dir = dir_path
         self.dir_name = dir_path
-        self.file_path = None
+        self.file_path = dir_path #here
         self.file_list_widget.clear()
         self.m_img_list = self.scan_all_images(dir_path)
         self.img_count = len(self.m_img_list)
